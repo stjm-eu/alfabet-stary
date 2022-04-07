@@ -1,0 +1,192 @@
+#include <Arduino.h>
+
+// Lista pinów cyfrowych.
+const int digitalPin[9] = {
+  21, // kciuk opuszek
+  23, // kciuk bok
+  25, // wskazujący opuszek
+  15, // wskazujący bok
+  19, // środkowy opuszek
+  17, // środkowy bok
+  12, //serdeczny opuszek
+  11, // serdeczny bok
+  9 // mały opuszek
+};
+
+// Numer pinu analogowego i jego wartość graniczna.
+struct AnalogPin {
+  const int pin;
+  const int treshold;
+};
+
+// Lista pinów analogowych i ich wartości granicznych.
+const AnalogPin analog[10] = {
+  {A0, 520}, // mały 1 (dół)
+  {A1, 720}, // mały 2 (góra)
+  {A2, 500}, // serdeczny 1
+  {A3, 570}, // serdeczny 2
+  {A4, 470}, // środkowy 1
+  {A5, 730}, // środkowy 2
+  {A6, 600}, // wskazujący 1
+  {A7, 620}, // wskazujący 2
+  {A8, 500}, // kciuk 1
+  {A9, 500} // kciuk 2
+};
+
+// Litera z jej bitfieldem i maską.
+struct LetterStruct {
+  const char* letter;
+  unsigned long bits;
+  unsigned long mask;
+};
+
+// Lista liter z ich bitfieldami i maskami.
+const LetterStruct letters[] = {
+  { "a",  0b11111111010000000000000111111110ul,
+          0b11111111110000000000000111111111ul },
+  { "b",  0b00000000010000000000000010101010ul,
+          0b11111111110000000000000111111111ul },
+  { "c",  0b11111101100000000000000111110000ul,
+          0b11111111110000000000000111111111ul },
+  { "ch", 0b11110101100000000000000111001000ul,
+          0b11111111110000000000000111111111ul },
+  { "d",  0b11111100100000000000000111110011ul,
+          0b11111111110000000000000111111111ul },
+  { "e",  0b10101010000000000000000010101001ul,
+          0b11111111110000000000000111111111ul },
+  { "f",  0b00000011000000000000000000000010ul,
+          0b11111111110000000000000111111111ul },
+  { "g",  0b00001100100000000000000000000000ul,
+          0b11111111110000000000000111111111ul },
+  { "h",  0b11110101110000000000000111000000ul,
+          0b11111111110000000000000111111111ul },
+  { "i",  0b00111111010000000000000001111110ul,
+          0b11111111110000000000000111111111ul },
+  { "k",  0b11111010000000000000000111000000ul,
+          0b11111111110000000000000111111111ul },
+  { "l",  0b11111100000000000000000111110000ul,
+          0b11111111110000000000000111111111ul },
+  { "m",  0b10101010000000000000000010101000ul,
+          0b11111111110000000000000111111111ul },
+  { "n",  0b11111010000000000000000111001000ul,
+          0b11111111110000000000000111111111ul },
+  { "o",  0b00000011100000000000000000000000ul,
+          0b11111111110000000000000111111111ul },
+  { "p",  0b11111110000000000000000111110001ul,
+          0b11111111110000000000000111111111ul },
+  { "w",  0b11000000010000000000000100000000ul,
+          0b11111111110000000000000111111111ul },
+  { "y",  0b00111100010000000000000001110000ul,
+          0b11111111110000000000000111111111ul },
+};
+
+// Ilość liter.
+const int LETTERS_LENGTH = sizeof(letters) / sizeof(letters[0]);
+
+// 32-bitowy bitfield przechowujący dane z czujników.
+unsigned long bitfield = 0;
+
+// Zwraca ilość bitów równych 1 w podanej zmiennej.
+int popCount(uint64_t x) {
+  x -= (x >> 1) & 0x5555555555555555;             //put count of each 2 bits into those 2 bits
+  x = (x & 0x3333333333333333) + ((x >> 2) & 0x3333333333333333); //put count of each 4 bits into those 4 bits
+  x = (x + (x >> 4)) & 0x0f0f0f0f0f0f0f0f;        //put count of each 8 bits into those 8 bits
+  x += x >>  8;  //put count of each 16 bits into their lowest 8 bits
+  x += x >> 16;  //put count of each 32 bits into their lowest 8 bits
+  x += x >> 32;  //put count of each 64 bits into their lowest 8 bits
+  return x & 0x7f;
+}
+
+// Zamienia bitfield na string złożony z 0 i 1.
+String bitString(unsigned long bits) {
+  char string[] = "00000000000000000000000000000000";
+  for (int i = 0; i < 32; i++) {
+    if ((bits >> (31 - i)) & 1) {
+      string[i] = '1';
+    }
+  }
+  return string;
+}
+
+String debugBitfield(unsigned long bits, unsigned long data, unsigned long mask) {
+  char string[] = "00000000000000000000000000000000";
+  for (int i = 0; i < 32; i++) {
+    if (bitRead(mask, 31 - i)) {
+      if (bitRead(bits ^ data, 31 - i)) {
+        string[i] = '1';
+      }
+      else {
+        string[i] = '0';
+      }
+    }
+    else {
+      if (bitRead(bits ^ data, 31 - i)) {
+        string[i] = '-';
+      }
+      else {
+        string[i] = '_';
+      }
+    }
+  }
+  return string;
+}
+
+// Odczytuje danych z czujnikw i wprowadza do zmiennej bitfield.
+void readSensors() {
+// odczytywanie danych z czujników cyfrowych - bitfield od prawej
+  for (int i = 0; i < 9; i++) {
+    bitWrite(bitfield, i, !digitalRead(digitalPin[i]));
+  }
+// odczytywanie danych z czujników analogowych - bitfield od lewej
+  for (int i = 0; i < 10; i++) {
+    bitWrite(bitfield, 31 - i, analogRead(analog[i].pin) > analog[i].treshold);
+  }
+}
+
+void loopNew() {
+  delay(100);
+
+  readSensors();
+
+  Serial.println(bitString(bitfield));
+
+  int matchedIndex = 0;
+  int bestMatchXOR = 1;
+  int bestMatchMask = 1;
+
+  for (int i = 0; i < LETTERS_LENGTH; i++) {
+    unsigned long bitfieldXOR = (bitfield ^ letters[i].bits) & letters[i].mask;
+
+    if (bitfieldXOR == 0) {
+      matchedIndex = i;
+      bestMatchXOR = 0;
+      bestMatchMask = 1;
+      break;
+    }
+
+    const int matchXOR = popCount(bitfieldXOR);
+    const int matchMask = popCount(letters[i].mask);
+    if (matchXOR * bestMatchMask < bestMatchXOR * matchMask) {
+      matchedIndex = i;
+      bestMatchXOR = matchXOR;
+      bestMatchMask = matchMask;
+    }
+  }
+
+  float bestMatchFloat = (float) bestMatchXOR / bestMatchMask;
+  Serial.print(bestMatchFloat);
+  if (bestMatchFloat < 0.5) {
+    Serial.println(letters[matchedIndex].letter);
+  }
+}
+
+void setup() {
+  Serial.begin(9600);
+  for (int i = 0; i < 9; i++) {
+    pinMode(digitalPin[i], INPUT_PULLUP);
+  }
+}
+
+void loop() {
+  loopNew();
+}
