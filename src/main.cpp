@@ -130,7 +130,7 @@ String debugBitfield(unsigned long bits, unsigned long data, unsigned long mask)
   return string;
 }
 
-// Odczytuje danych z czujnikw i wprowadza do zmiennej bitfield.
+// Odczytuje danych z czujników i wprowadza do zmiennej bitfield.
 void readSensors() {
 // odczytywanie danych z czujników cyfrowych - bitfield od prawej
   for (int i = 0; i < 9; i++) {
@@ -142,7 +142,14 @@ void readSensors() {
   }
 }
 
-void loopNew() {
+void setup() {
+  Serial.begin(9600);
+  for (int i = 0; i < 9; i++) {
+    pinMode(digitalPin[i], INPUT_PULLUP);
+  }
+}
+
+void loop() {
   delay(100);
 
   readSensors();
@@ -174,18 +181,8 @@ void loopNew() {
 
   float bestMatchFloat = (float) bestMatchXOR / bestMatchMask;
   Serial.print(bestMatchFloat);
+  Serial.print(' ');
   if (bestMatchFloat < 0.5) {
     Serial.println(letters[matchedIndex].letter);
   }
-}
-
-void setup() {
-  Serial.begin(9600);
-  for (int i = 0; i < 9; i++) {
-    pinMode(digitalPin[i], INPUT_PULLUP);
-  }
-}
-
-void loop() {
-  loopNew();
 }
