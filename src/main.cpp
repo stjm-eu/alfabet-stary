@@ -142,20 +142,7 @@ void readSensors() {
   }
 }
 
-void setup() {
-  Serial.begin(9600);
-  for (int i = 0; i < 9; i++) {
-    pinMode(digitalPin[i], INPUT_PULLUP);
-  }
-}
-
-void loop() {
-  delay(100);
-
-  readSensors();
-
-  Serial.println(bitString(bitfield));
-
+auto matchLetter() {
   int matchedIndex = 0;
   int bestMatchXOR = 1;
   int bestMatchMask = 1;
@@ -179,10 +166,29 @@ void loop() {
     }
   }
 
-  float bestMatchFloat = (float) bestMatchXOR / bestMatchMask;
-  Serial.print(bestMatchFloat);
+  struct result { int index; float match; };
+  return result { matchedIndex, (float) bestMatchXOR / bestMatchMask };
+}
+
+void setup() {
+  Serial.begin(9600);
+  for (int i = 0; i < 9; i++) {
+    pinMode(digitalPin[i], INPUT_PULLUP);
+  }
+}
+
+void loop() {
+  delay(100);
+
+  readSensors();
+
+  Serial.println(bitString(bitfield));
+
+  auto [index, match] = matchLetter();
+  
+  Serial.print(match);
   Serial.print(' ');
-  if (bestMatchFloat < 0.5) {
-    Serial.println(letters[matchedIndex].letter);
+  if (match < 0.5) {
+    Serial.println(letters[index].letter);
   }
 }
