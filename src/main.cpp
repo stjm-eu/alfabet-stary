@@ -36,8 +36,8 @@ const AnalogPin analog[10] = {
 // Litera z jej bitfieldem i maską.
 struct LetterStruct {
   const char* letter;
-  unsigned long bits;
-  unsigned long mask;
+  uint32_t bits;
+  uint32_t mask;
 };
 
 // Lista liter z ich bitfieldami i maskami.
@@ -84,7 +84,7 @@ const LetterStruct letters[] = {
 const int LETTERS_LENGTH = sizeof(letters) / sizeof(letters[0]);
 
 // 32-bitowy bitfield przechowujący dane z czujników.
-unsigned long bitfield = 0;
+uint32_t bitfield = 0;
 
 // Zwraca ilość bitów równych 1 w podanej zmiennej.
 int popCount(uint32_t x) {
@@ -97,7 +97,7 @@ int popCount(uint32_t x) {
 }
 
 // Zamienia bitfield na string złożony z 0 i 1.
-String bitString(unsigned long bits) {
+String bitString(uint32_t bits) {
   char string[] = "00000000000000000000000000000000";
   for (int i = 0; i < 32; i++) {
     if ((bits >> (31 - i)) & 1) {
@@ -107,7 +107,7 @@ String bitString(unsigned long bits) {
   return string;
 }
 
-String debugBitfield(unsigned long bits, unsigned long data, unsigned long mask) {
+String debugBitfield(uint32_t bits, uint32_t data, uint32_t mask) {
   char string[] = "00000000000000000000000000000000";
   for (int i = 0; i < 32; i++) {
     if (bitRead(mask, 31 - i)) {
@@ -149,7 +149,7 @@ auto matchLetter() {
   int bestMatchMask = 1;
 
   for (int i = 0; i < LETTERS_LENGTH; i++) {
-    unsigned long bitfieldXOR = (bitfield ^ letters[i].bits) & letters[i].mask;
+    uint32_t bitfieldXOR = (bitfield ^ letters[i].bits) & letters[i].mask;
 
     if (bitfieldXOR == 0) {
       matchedIndex = i;
