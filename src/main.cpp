@@ -142,6 +142,7 @@ void readSensors() {
   }
 }
 
+// Zwraca najlepiej dopasowaną literę wraz ze stopniem dopasowania.
 auto matchLetter() {
   int matchedIndex = 0;
   int bestMatchXOR = 1;
