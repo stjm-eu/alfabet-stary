@@ -144,7 +144,7 @@ uint32_t readSensors() {
   return sensorBitfield;
 }
 
-// Zwraca najlepiej dopasowaną literę wraz ze stopniem dopasowania.
+// Zwraca indeks najlepiej dopasowanej litery wraz ze stopniem dopasowania.
 auto matchLetter(uint32_t sensorsBitfield) {
   int matchedIndex = 0;
   int bestMatchXOR = 1;
