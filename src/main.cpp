@@ -131,25 +131,27 @@ String debugBitfield(uint32_t bits, uint32_t data, uint32_t mask) {
 }
 
 // Odczytuje danych z czujników i wprowadza do zmiennej bitfield.
-void readSensors() {
+uint32_t readSensors() {
+  uint32_t sensorBitfield = 0;
 // odczytywanie danych z czujników cyfrowych - bitfield od prawej
   for (int i = 0; i < 9; i++) {
-    bitWrite(bitfield, i, !digitalRead(digitalPin[i]));
+    bitWrite(sensorBitfield, i, !digitalRead(digitalPin[i]));
   }
 // odczytywanie danych z czujników analogowych - bitfield od lewej
   for (int i = 0; i < 10; i++) {
-    bitWrite(bitfield, 31 - i, analogRead(analog[i].pin) > analog[i].treshold);
+    bitWrite(sensorBitfield, 31 - i, analogRead(analog[i].pin) > analog[i].treshold);
   }
+  return sensorBitfield;
 }
 
 // Zwraca najlepiej dopasowaną literę wraz ze stopniem dopasowania.
-auto matchLetter() {
+auto matchLetter(uint32_t sensorsBitfield) {
   int matchedIndex = 0;
   int bestMatchXOR = 1;
   int bestMatchMask = 1;
 
   for (int i = 0; i < LETTERS_LENGTH; i++) {
-    uint32_t bitfieldXOR = (bitfield ^ letters[i].bits) & letters[i].mask;
+    uint32_t bitfieldXOR = (sensorsBitfield ^ letters[i].bits) & letters[i].mask;
 
     if (bitfieldXOR == 0) {
       matchedIndex = i;
@@ -181,11 +183,11 @@ void setup() {
 void loop() {
   delay(100);
 
-  readSensors();
+  bitfield = readSensors();
 
   Serial.println(bitString(bitfield));
 
-  auto [index, match] = matchLetter();
+  auto [index, match] = matchLetter(bitfield);
   
   Serial.print(match);
   Serial.print(' ');
