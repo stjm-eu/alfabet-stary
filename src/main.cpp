@@ -130,7 +130,7 @@ String debugBitfield(uint32_t bits, uint32_t data, uint32_t mask) {
   return string;
 }
 
-// Odczytuje danych z czujników i wprowadza do zmiennej bitfield.
+// Odczytuje, łączy i zwraca danych z czujników.
 uint32_t readSensors() {
   uint32_t sensorBitfield = 0;
 // odczytywanie danych z czujników cyfrowych - bitfield od prawej
