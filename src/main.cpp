@@ -6,7 +6,7 @@ const int digitalPin[9] = {
   23, // kciuk bok
   25, // wskazujący opuszek
   15, // wskazujący bok
-  19, // środkowy opuszek
+  20, // środkowy opuszek
   17, // środkowy bok
   12, //serdeczny opuszek
   11, // serdeczny bok
