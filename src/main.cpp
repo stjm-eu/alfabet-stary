@@ -2,11 +2,11 @@
 
 // Lista pinów cyfrowych.
 const int digitalPin[9] = {
-  21, // kciuk opuszek
+  24, // kciuk opuszek
   23, // kciuk bok
   25, // wskazujący opuszek
   15, // wskazujący bok
-  19, // środkowy opuszek
+  22, // środkowy opuszek
   17, // środkowy bok
   12, //serdeczny opuszek
   11, // serdeczny bok
