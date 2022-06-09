@@ -201,5 +201,9 @@ void loop() {
       iterations = 0;
     }
   }
+  else {
+    previous = -1;
+    iterations = 0;
+  }
   Serial.println(match);
 }
