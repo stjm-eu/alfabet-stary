@@ -206,5 +206,5 @@ void loop() {
     previous = -1;
     iterations = 0;
   }
-  Serial.println(match);
+  // Serial.println(match);
 }
