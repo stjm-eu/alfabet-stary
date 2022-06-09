@@ -181,7 +181,7 @@ void loop() {
   static int previous;
   static int iterations;
 
-  delay(100);
+  delay(40);
 
 // 32-bitowy bitfield przechowujący dane z czujników.
   uint32_t bitfield = readSensors();
@@ -189,10 +189,10 @@ void loop() {
   // Serial.println(bitString(bitfield));
 
   auto [index, match] = matchLetter(bitfield);
-  if (match < 0.5) {
+  if (match < 0.3) {
     if (index == previous) {
       iterations++;
-      if (iterations == 8) {
+      if (iterations == 6) {
         Serial.print(' ');
         Serial.print(letters[index].letter);
       }
