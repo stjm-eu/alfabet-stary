@@ -83,9 +83,6 @@ const LetterStruct letters[] = {
 // Ilość liter.
 const int LETTERS_LENGTH = sizeof(letters) / sizeof(letters[0]);
 
-// 32-bitowy bitfield przechowujący dane z czujników.
-uint32_t bitfield = 0;
-
 // Zwraca ilość bitów równych 1 w podanej zmiennej.
 int popCount(uint32_t x) {
   x = x - ((x >> 1) & 0x55555555);
@@ -183,7 +180,8 @@ void setup() {
 void loop() {
   delay(100);
 
-  bitfield = readSensors();
+// 32-bitowy bitfield przechowujący dane z czujników.
+  uint32_t bitfield = readSensors();
 
   Serial.println(bitString(bitfield));
 
