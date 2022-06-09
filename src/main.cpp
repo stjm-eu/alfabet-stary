@@ -189,13 +189,11 @@ void loop() {
   // Serial.println(bitString(bitfield));
 
   auto [index, match] = matchLetter(bitfield);
-  
-  Serial.print(match);
   if (match < 0.5) {
     if (index == previous) {
       iterations++;
       if (iterations == 8) {
-        Serial.println(' ' + letters[index].letter);
+        Serial.print(' ' + letters[index].letter);
       }
     }
     else {
@@ -203,4 +201,5 @@ void loop() {
       iterations = 0;
     }
   }
+  Serial.println(match);
 }
