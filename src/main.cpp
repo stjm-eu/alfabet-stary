@@ -193,7 +193,8 @@ void loop() {
     if (index == previous) {
       iterations++;
       if (iterations == 8) {
-        Serial.print(' ' + letters[index].letter);
+        Serial.print(' ');
+        Serial.print(letters[index].letter);
       }
     }
     else {
