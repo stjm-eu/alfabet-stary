@@ -208,3 +208,21 @@ void loop() {
   }
   // Serial.println(match);
 }
+
+void executeCommand(String inString) {
+}
+
+void serialEvent() {
+  static String inString;
+
+  while (Serial.available()) {
+    char inChar = (char) Serial.read();
+    if (inChar == '\n') {
+      executeCommand(inString);
+      inString = "";
+    }
+    else {
+      inString += inChar;
+    }
+  }
+}
