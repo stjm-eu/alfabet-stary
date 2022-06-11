@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+bool log = false;
+
 // Lista pinów cyfrowych.
 const int digitalPin[9] = {
   24, // kciuk opuszek
@@ -206,7 +208,7 @@ void loop() {
 // 32-bitowy bitfield przechowujący dane z czujników.
   uint32_t bitfield = readSensors();
 
-  // Serial.println(bitString(bitfield));
+  if (log) Serial.println(bitString(bitfield));
 
   auto [index, match] = matchLetter(bitfield);
   if (match < 0.3) {
@@ -226,7 +228,7 @@ void loop() {
     previous = -1;
     iterations = 0;
   }
-  // Serial.println(match);
+  if (log) Serial.println(match);
 }
 
 void calibrate() {
@@ -267,6 +269,8 @@ void calibrate() {
 
 void executeCommand(String inString) {
   if (inString == "kalibracja") calibrate();
+  else if (inString == "log") log = true;
+  else if (inString == "!log") log = false;
   else {
     Serial.write("Błąd: nieznana komenda");
   }
