@@ -16,11 +16,11 @@ const int digitalPin[9] = {
 // Numer pinu analogowego i jego wartość graniczna.
 struct AnalogPin {
   const int pin;
-  const int treshold;
+  int treshold;
 };
 
 // Lista pinów analogowych i ich wartości granicznych.
-const AnalogPin analog[10] = {
+AnalogPin analog[10] = {
   {A0, 520}, // mały 1 (dół)
   {A1, 720}, // mały 2 (góra)
   {A2, 500}, // serdeczny 1
@@ -170,8 +170,28 @@ auto matchLetter(uint32_t sensorsBitfield) {
   return result { matchedIndex, (float) bestMatchXOR / bestMatchMask };
 }
 
+void led_high() {
+  digitalWrite(LED_BUILTIN, HIGH);
+}
+void led_high(unsigned long ms) {
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(ms);
+}
+
+void led_low() {
+  digitalWrite(LED_BUILTIN, LOW);
+}
+void led_low(unsigned long ms) {
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(ms);
+}
+
 void setup() {
   Serial.begin(9600);
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  led_low();
+
   for (int i = 0; i < 9; i++) {
     pinMode(digitalPin[i], INPUT_PULLUP);
   }
@@ -209,7 +229,47 @@ void loop() {
   // Serial.println(match);
 }
 
+void calibrate() {
+  int straight[10];
+  int bent[10];
+
+  led_high(100);
+  led_low(100);
+  led_high(100);
+  led_low(1100);
+
+  led_high(2000);
+  for (int i = 0; i < 10; i++) {
+    straight[i] = analogRead(analog[i].pin);
+  }
+  led_low(1000);
+
+  led_high(100);
+  led_low(100);
+  led_high(100);
+  led_low(1100);
+
+  led_high(2000);
+  for (int i = 0; i < 10; i++) {
+    bent[i] = analogRead(analog[i].pin);
+  }
+  led_low(1000);
+
+  for (int i = 0; i < 10; i++) {
+    analog[i].treshold = (straight[i] + bent[i]) / 2;
+  }
+
+  led_high(100);
+  led_low(100);
+  led_high(100);
+  led_low();
+}
+
 void executeCommand(String inString) {
+  if (inString == "kalibracja") calibrate();
+  else {
+    Serial.write("Błąd: nieznana komenda");
+  }
 }
 
 void serialEvent() {
