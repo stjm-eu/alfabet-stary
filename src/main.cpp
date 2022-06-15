@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-bool log = false;
+bool dev_log = false;
 
 // Lista pinów cyfrowych.
 const int digitalPin[9] = {
@@ -208,7 +208,7 @@ void loop() {
 // 32-bitowy bitfield przechowujący dane z czujników.
   uint32_t bitfield = readSensors();
 
-  if (log) Serial.println(bitString(bitfield));
+  if (dev_log) Serial.println(bitString(bitfield));
 
   auto [index, match] = matchLetter(bitfield);
   if (match < 0.3) {
@@ -228,7 +228,7 @@ void loop() {
     previous = -1;
     iterations = 0;
   }
-  if (log) Serial.println(match);
+  if (dev_log) Serial.println(match);
 }
 
 void calibrate() {
@@ -269,8 +269,11 @@ void calibrate() {
 
 void executeCommand(String inString) {
   if (inString == "kalibracja") calibrate();
-  else if (inString == "log") log = true;
-  else if (inString == "!log") log = false;
+  else if (inString == "log") dev_log = true;
+  else if (inString == "!log") {
+    dev_log = false;
+    for (int i = 0; i < 10; i++, Serial.println());
+  }
   else {
     Serial.write("Błąd: nieznana komenda");
   }
