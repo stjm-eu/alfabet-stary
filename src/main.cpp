@@ -94,6 +94,7 @@ void calibrate() {
   int straight[10];
   int bent[10];
 
+  Serial.println("Wyprostuj palce");
   led_high(100);
   led_low(100);
   led_high(100);
@@ -105,6 +106,7 @@ void calibrate() {
   }
   led_low(1000);
 
+  Serial.println("Zegnij palce");
   led_high(100);
   led_low(100);
   led_high(100);
@@ -120,6 +122,7 @@ void calibrate() {
     analog[i].treshold = (straight[i] + bent[i]) / 2;
   }
 
+  Serial.println("Kalibracja zakończona");
   led_high(100);
   led_low(100);
   led_high(100);
