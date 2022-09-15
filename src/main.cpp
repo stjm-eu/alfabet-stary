@@ -94,7 +94,7 @@ void calibrate() {
 
   Serial.print("\nKalibrowanie żyroskopu ");
   mpu.CalibrateGyro();
-  
+
   Serial.println("\nSkalibrowano MPU6050!");
 }
 
