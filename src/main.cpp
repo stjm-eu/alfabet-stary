@@ -7,6 +7,13 @@
 
 MPU6050 mpu;
 
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
+
+void readMPU() {
+  mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+}
+
 bool dev_log = false;
 
 // Odczytuje, łączy i zwraca danych z czujników.
@@ -73,9 +80,6 @@ void setup() {
   Serial.println(F("Testing device connections..."));
   Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
 
-  int16_t ax, ay, az;
-  int16_t gx, gy, gz;
-
   Serial.println(F("Ułóż rękę w pozycji do kalibracji MPU6050"));
   delay(1000);
   for (int i = 5; i > 0; i--) {
@@ -90,7 +94,7 @@ void setup() {
   Serial.println("\nSkalibrowano!");
 
   // while(true) {
-  //   mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+  //   readMPU();
   //   Serial.print("a/g:\t");
   //   Serial.print(ax); Serial.print("\t");
   //   Serial.print(ay); Serial.print("\t");
@@ -107,6 +111,8 @@ void loop() {
   static int iterations;
 
   delay(40);
+
+  readMPU();
 
 // 32-bitowy bitfield przechowujący dane z czujników.
   uint32_t bitfield = readSensors();
