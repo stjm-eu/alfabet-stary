@@ -1,6 +1,11 @@
 #include <Arduino.h>
+#include <Wire.h>
 #include "data.h"
 #include "util.h"
+#include <I2Cdev.h>
+#include <MPU6050.h>
+
+MPU6050 mpu;
 
 bool dev_log = false;
 
@@ -56,6 +61,45 @@ void setup() {
   for (int i = 0; i < 9; i++) {
     pinMode(digitalPin[i], INPUT_PULLUP);
   }
+
+  // delay(1000);
+
+  Wire.begin();
+  // initialize device
+  Serial.println(F("Initializing I2C devices..."));
+  mpu.initialize();
+
+  // verify connection
+  Serial.println(F("Testing device connections..."));
+  Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
+
+  int16_t ax, ay, az;
+  int16_t gx, gy, gz;
+
+  Serial.println(F("Ułóż rękę w pozycji do kalibracji MPU6050"));
+  delay(1000);
+  for (int i = 5; i > 0; i--) {
+    Serial.print(i);
+    Serial.print('.');
+    delay(1000);
+  }
+  Serial.print("\nKalibrowanie akcelerometru ");
+  mpu.CalibrateAccel();
+  Serial.print("\nKalibrowanie żyroskopu ");
+  mpu.CalibrateGyro();
+  Serial.println("\nSkalibrowano!");
+
+  // while(true) {
+  //   mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+  //   Serial.print("a/g:\t");
+  //   Serial.print(ax); Serial.print("\t");
+  //   Serial.print(ay); Serial.print("\t");
+  //   Serial.print(az); Serial.print("\t");
+  //   Serial.print(gx); Serial.print("\t");
+  //   Serial.print(gy); Serial.print("\t");
+  //   Serial.println(gz);
+  //   delay(100);
+  // };
 }
 
 void loop() {
