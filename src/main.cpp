@@ -84,6 +84,18 @@ void calibrate() {
   }
 
   Serial.println("Skalibrowano czujniki zgięcia!");
+
+  Serial.println(F("Ułóż rękę w pozycji do kalibracji MPU6050"));
+  delay(1000);
+  serialCountdown(5);
+
+  Serial.print("\nKalibrowanie akcelerometru ");
+  mpu.CalibrateAccel();
+
+  Serial.print("\nKalibrowanie żyroskopu ");
+  mpu.CalibrateGyro();
+  
+  Serial.println("\nSkalibrowano MPU6050!");
 }
 
 void setup() {
@@ -106,15 +118,6 @@ void setup() {
   // verify connection
   Serial.println(F("Testing device connections..."));
   Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
-
-  Serial.println(F("Ułóż rękę w pozycji do kalibracji MPU6050"));
-  delay(1000);
-  serialCountdown(5);
-  Serial.print("\nKalibrowanie akcelerometru ");
-  mpu.CalibrateAccel();
-  Serial.print("\nKalibrowanie żyroskopu ");
-  mpu.CalibrateGyro();
-  Serial.println("\nSkalibrowano MPU6050!");
 
   calibrate();
 
