@@ -59,3 +59,11 @@ void led_low(unsigned long ms) {
   digitalWrite(LED_BUILTIN, LOW);
   delay(ms);
 }
+
+void serialCountdown(int i) {
+  for (; i > 0; i--) {
+    Serial.print(i);
+    Serial.print('.');
+    delay(1000);
+  }
+}
