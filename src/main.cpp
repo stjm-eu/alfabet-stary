@@ -59,6 +59,33 @@ auto matchLetter(uint32_t sensorsBitfield) {
   return result { matchedIndex, (float) bestMatchXOR / bestMatchMask };
 }
 
+void calibrate() {
+  Serial.println("\nKalibrowanie czujników zgięcia");
+
+  int straight[10];
+  int bent[10];
+
+  Serial.println("Wyprostuj palce");
+  serialCountdown(5);
+
+  for (int i = 0; i < 10; i++) {
+    straight[i] = analogRead(analog[i].pin);
+  }
+
+  Serial.println("\nZegnij palce");
+  serialCountdown(5);
+
+  for (int i = 0; i < 10; i++) {
+    bent[i] = analogRead(analog[i].pin);
+  }
+
+  for (int i = 0; i < 10; i++) {
+    analog[i].treshold = (straight[i] + bent[i]) / 2;
+  }
+
+  Serial.println("Skalibrowano czujniki zgięcia!");
+}
+
 void setup() {
   Serial.begin(9600);
 
@@ -82,16 +109,14 @@ void setup() {
 
   Serial.println(F("Ułóż rękę w pozycji do kalibracji MPU6050"));
   delay(1000);
-  for (int i = 5; i > 0; i--) {
-    Serial.print(i);
-    Serial.print('.');
-    delay(1000);
-  }
+  serialCountdown(5);
   Serial.print("\nKalibrowanie akcelerometru ");
   mpu.CalibrateAccel();
   Serial.print("\nKalibrowanie żyroskopu ");
   mpu.CalibrateGyro();
-  Serial.println("\nSkalibrowano!");
+  Serial.println("\nSkalibrowano MPU6050!");
+
+  calibrate();
 
   // while(true) {
   //   readMPU();
@@ -138,45 +163,6 @@ void loop() {
     iterations = 0;
   }
   if (dev_log) Serial.println(match);
-}
-
-void calibrate() {
-  int straight[10];
-  int bent[10];
-
-  Serial.println("Wyprostuj palce");
-  led_high(100);
-  led_low(100);
-  led_high(100);
-  led_low(1100);
-
-  led_high(2000);
-  for (int i = 0; i < 10; i++) {
-    straight[i] = analogRead(analog[i].pin);
-  }
-  led_low(1000);
-
-  Serial.println("Zegnij palce");
-  led_high(100);
-  led_low(100);
-  led_high(100);
-  led_low(1100);
-
-  led_high(2000);
-  for (int i = 0; i < 10; i++) {
-    bent[i] = analogRead(analog[i].pin);
-  }
-  led_low(1000);
-
-  for (int i = 0; i < 10; i++) {
-    analog[i].treshold = (straight[i] + bent[i]) / 2;
-  }
-
-  Serial.println("Kalibracja zakończona");
-  led_high(100);
-  led_low(100);
-  led_high(100);
-  led_low();
 }
 
 void executeCommand(String inString) {
